@@ -29,7 +29,6 @@ export default function App() {
     telefone: "(11) 98765-4321",
   };
 
-  // Estado da consulta
   const [consulta, setConsulta] = useState<Consulta>({
     id: 1,
     medico: medico1,
@@ -40,7 +39,6 @@ export default function App() {
     observacoes: "Consulta de rotina",
   });
 
-  // Funções para manipular a consulta
   function confirmarConsulta() {
     setConsulta({
       ...consulta,
@@ -55,7 +53,6 @@ export default function App() {
     });
   }
 
-  // Função para formatar valor em reais
   function formatarValor(valor: number): string {
     return valor.toLocaleString("pt-BR", {
       style: "currency",
@@ -63,7 +60,6 @@ export default function App() {
     });
   }
 
-  // Função para formatar data
   function formatarData(data: Date): string {
     return data.toLocaleDateString("pt-BR");
   }
@@ -164,12 +160,12 @@ const styles = StyleSheet.create({
   titulo: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#f0d53b",
+    color: "#0004ff",
     marginBottom: 8,
   },
   subtitulo: {
     fontSize: 18,
-    color: "#f0d53b",
+    color: "#00a2ff",
     opacity: 0.9,
   },
   card: {
@@ -263,7 +259,7 @@ const styles = StyleSheet.create({
   },
   rodapeTexto: {
     fontSize: 12,
-    color: "#fff",
+    color: "#000000",
     textAlign: "center",
     lineHeight: 18,
   },
