@@ -2,6 +2,7 @@ import { Especialidade } from "./src/types/especialidade";
 import { Paciente } from "./src/types/paciente";
 import { Medico } from "./src/interfaces/medico";
 import { Consulta } from "./src/interfaces/consulta";
+import { useState } from "react";
 
 const cardiologia: Especialidade = {
   id: 1,
@@ -24,3 +25,13 @@ const paciente1: Paciente = {
   email: "carlos@email.com",
   telefone: "(11) 98765-4321",
 };
+
+const [consulta, setConsulta] = useState<Consulta>({
+  id: 1,
+  medico: medico1,
+  paciente: paciente1,
+  data: new Date(2026, 2, 10),
+  valor: 350,
+  status: "agendada",
+  observacoes: "Consulta de rotina",
+});
