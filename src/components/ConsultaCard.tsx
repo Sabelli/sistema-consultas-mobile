@@ -20,6 +20,19 @@ export default function ConsultaCard({
   onConfirmar,
   onCancelar,
 }: ConsultaCardProps) {
+
+  // Auxiliar LOCAL - formata valor para R$ 150,00
+  function formatarValor(valor: number): string {
+    return valor.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+  }
+  
+  // Auxiliar LOCAL - formata data para 25/03/2026
+  function formatarData(data: Date): string {
+    return data.toLocaleDateString("pt-BR");
+  }
   
   return (
     <View style={styles.card}>
