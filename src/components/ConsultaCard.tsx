@@ -10,9 +10,9 @@ import { Consulta } from "../interfaces/consulta"; // ← import do type GLOBAL
 
 // Type LOCAL (usado apenas aqui)
 type ConsultaCardProps = {
-  consulta: Consulta;
-  onConfirmar?: () => void;
-  onCancelar?: () => void;
+  consulta: Consulta;          // OBRIGATÓRIA
+  onConfirmar?: () => void;    // OPCIONAL
+  onCancelar?: () => void;     // OPCIONAL
 };
 
 export default function ConsultaCard({
