@@ -34,10 +34,11 @@ export default function Home() {
   const [consulta, setConsulta] = useState<Consulta>(consultaInicial);
 
   function confirmarConsulta() {
-    setConsulta({
+    const novaConsulta = {
       ...consulta,
-      status: "confirmada",
-    });
+      status: "confirmada" as const,
+    };
+    setConsulta(novaConsulta);
   }
 
   function cancelarConsulta() {
