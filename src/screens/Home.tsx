@@ -7,6 +7,7 @@ import { Medico } from "../interfaces/medico";
 import { Consulta } from "../interfaces/consulta";
 import { ConsultaCard } from "../components";
 import { styles } from "../styles/app.styles";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Home() {
   const cardiologia: Especialidade = {
