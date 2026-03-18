@@ -50,6 +50,17 @@ export default function Home() {
     });
   }
 
+  async function salvarConsulta(consultaAtualizada: Consulta) {
+    try {
+      await AsyncStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(consultaAtualizada)
+      );
+    } catch (erro) {
+      console.error("Erro ao salvar:", erro);
+    }
+  }
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
