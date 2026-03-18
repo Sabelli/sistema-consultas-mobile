@@ -31,15 +31,7 @@ export default function Home() {
     telefone: "(11) 98765-4321",
   };
 
-  const [consulta, setConsulta] = useState<Consulta>({
-    id: 1,
-    medico: medico1,
-    paciente: paciente1,
-    data: new Date(2026, 2, 10),
-    valor: 350,
-    status: "agendada",
-    observacoes: "Consulta de rotina",
-  });
+  const [consulta, setConsulta] = useState<Consulta>(consultaInicial);
 
   function confirmarConsulta() {
     setConsulta({
