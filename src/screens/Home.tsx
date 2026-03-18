@@ -61,6 +61,19 @@ export default function Home() {
     }
   }
 
+  async function carregarConsulta() {
+    try {
+      const dados = await AsyncStorage.getItem(STORAGE_KEY);
+      if (dados) {
+        const consultaObj = JSON.parse(dados);
+        consultaObj.data = new Date(consultaObj.data);
+        setConsulta(consultaObj);
+      }
+    } catch (erro) {
+      console.error("Erro ao carregar:", erro);
+    }
+  }
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
