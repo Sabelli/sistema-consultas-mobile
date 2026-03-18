@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Especialidade } from "../types/especialidade";
@@ -73,6 +73,10 @@ export default function Home() {
       console.error("Erro ao carregar:", erro);
     }
   }
+
+  useEffect(() => {
+    carregarConsulta();
+  }, []);
 
   return (
     <View style={styles.container}>
