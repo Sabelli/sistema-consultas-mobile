@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, ScrollView } from "react-native";
 import { StatusBar } from "expo-status-bar";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Especialidade } from "../types/especialidade";
 import { Paciente } from "../types/paciente";
 import { Medico } from "../interfaces/medico";
 import { Consulta } from "../interfaces/consulta";
 import { ConsultaCard } from "../components";
 import { styles } from "../styles/app.styles";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const STORAGE_KEY = "@consultas:consulta_atual";
 
 export default function Home() {
-  const STORAGE_KEY = "@consultas:consulta_atual";
   const cardiologia: Especialidade = {
     id: 1,
     nome: "Cardiologia",
@@ -33,21 +34,33 @@ export default function Home() {
     telefone: "(11) 98765-4321",
   };
 
+  const consultaInicial: Consulta = {
+    id: 1,
+    medico: medico1,
+    paciente: paciente1,
+    data: new Date(2026, 2, 10),
+    valor: 350,
+    status: "agendada",
+    observacoes: "Consulta de rotina",
+  };
+
   const [consulta, setConsulta] = useState<Consulta>(consultaInicial);
 
-  function confirmarConsulta() {
-    const novaConsulta = {
-      ...consulta,
-      status: "confirmada" as const,
-    };
-    setConsulta(novaConsulta);
-  }
+  useEffect(() => {
+    carregarConsulta();
+  }, []);
 
-  function cancelarConsulta() {
-    setConsulta({
-      ...consulta,
-      status: "cancelada",
-    });
+  async function carregarConsulta() {
+    try {
+      const consultaSalva = await AsyncStorage.getItem(STORAGE_KEY);
+      if (consultaSalva) {
+        const consultaObjeto = JSON.parse(consultaSalva);
+        consultaObjeto.data = new Date(consultaObjeto.data);
+        setConsulta(consultaObjeto);
+      }
+    } catch (erro) {
+      console.error("Erro ao carregar consulta:", erro);
+    }
   }
 
   async function salvarConsulta(consultaAtualizada: Consulta) {
@@ -57,26 +70,27 @@ export default function Home() {
         JSON.stringify(consultaAtualizada)
       );
     } catch (erro) {
-      console.error("Erro ao salvar:", erro);
+      console.error("Erro ao salvar consulta:", erro);
     }
   }
 
-  async function carregarConsulta() {
-    try {
-      const dados = await AsyncStorage.getItem(STORAGE_KEY);
-      if (dados) {
-        const consultaObj = JSON.parse(dados);
-        consultaObj.data = new Date(consultaObj.data);
-        setConsulta(consultaObj);
-      }
-    } catch (erro) {
-      console.error("Erro ao carregar:", erro);
-    }
+  function confirmarConsulta() {
+    const consultaAtualizada = {
+      ...consulta,
+      status: "confirmada" as const,
+    };
+    setConsulta(consultaAtualizada);
+    salvarConsulta(consultaAtualizada);
   }
 
-  useEffect(() => {
-    carregarConsulta();
-  }, []);
+  function cancelarConsulta() {
+    const consultaAtualizada = {
+      ...consulta,
+      status: "cancelada" as const,
+    };
+    setConsulta(consultaAtualizada);
+    salvarConsulta(consultaAtualizada);
+  }
 
   return (
     <View style={styles.container}>
