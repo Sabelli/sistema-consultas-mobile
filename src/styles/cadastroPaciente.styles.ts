@@ -1,0 +1,25 @@
+import { Platform, StyleSheet } from "react-native";
+export const styles = StyleSheet.create({
+    container: {},
+    scrollContent: {},
+    header: {},
+    icone: {},
+    titulo: {},
+    subtitulo: {},
+    form: {},
+    inputContainer: {},
+    label: {},
+    input: {},
+    botao: {},
+    botaoTexto: {},
+    botaoDesabilitado: {},
+    erroContainer: {},
+    erroTexto: {},
+    botaoCadastro: {},
+    botaoCadastroTexto: {},
+    infoContainer: {},
+    infoTexto: {},
+    inputDesabilitado: {},
+    botaoVoltar: {},
+    botaoVoltarTexto: {}
+});
