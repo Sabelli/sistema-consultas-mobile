@@ -7,20 +7,20 @@ import {
 import { StatusBar } from "expo-status-bar";
 // Componente não utilizado na versão simplificada
 
-type CadastroPacienteProps = {
-  onCadastroSuccess: () => void;
-  onVoltar: () => void;
+type LoginProps = {
+  onLoginSuccess: (tipo: "paciente" | "admin") => void;
+  onNavigateToCadastro: () => void;
 };
 
-export default function CadastroPaciente({
-  onCadastroSuccess,
-  onVoltar,
-}: CadastroPacienteProps) {
+export default function Login({
+  onLoginSuccess,
+  onNavigateToCadastro,
+}: LoginProps) {
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
       <View style={styles.header}>
-        <Text style={styles.titulo}>📝 Cadastro de Paciente</Text>
+        <Text style={styles.titulo}>🏭 Sistema de Consultas</Text>
         <Text style={styles.subtitulo}>Componente não utilizado na versão simplificada</Text>
       </View>
     </View>
