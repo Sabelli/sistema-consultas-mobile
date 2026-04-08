@@ -1,185 +1,110 @@
-/**
- * Componente Card de Consulta
- * Exibe informações de uma consulta com ações disponíveis
- */
-
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { Consulta } from "../types";
-import { formatarData, formatarHorario, obterCorStatus, obterTextoStatus } from "../utils/formatters";
+import { View, Text, Button } from "react-native";
+import { Consulta } from "../interfaces/consulta";
+import { styles } from "../styles/consultaCard.styles";
 
 type ConsultaCardProps = {
   consulta: Consulta;
-  onConfirmar?: (id: number) => void;
-  onCancelar?: (id: number) => void;
-  onDetalhes?: (id: number) => void;
+  onConfirmar?: () => void;
+  onCancelar?: () => void;
 };
 
 export default function ConsultaCard({
   consulta,
   onConfirmar,
   onCancelar,
-  onDetalhes,
 }: ConsultaCardProps) {
-  const corStatus = obterCorStatus(consulta.status);
+  function formatarValor(valor: number): string {
+    return valor.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+  }
+
+  function formatarData(data: Date): string {
+    return data.toLocaleDateString("pt-BR");
+  }
 
   return (
     <View style={styles.card}>
-      {/* Cabeçalho com Status */}
-      <View style={[styles.statusBadge, { backgroundColor: corStatus }]}>
+      <View
+        style={[
+          styles.statusBadge,
+          consulta.status === "confirmada" && styles.statusConfirmada,
+          consulta.status === "cancelada" && styles.statusCancelada,
+        ]}
+      >
         <Text style={styles.statusTexto}>
-          {obterTextoStatus(consulta.status)}
+          {consulta.status.toUpperCase()}
         </Text>
       </View>
 
-      {/* Informações Principais */}
-      <View style={styles.info}>
-        <Text style={styles.label}>Paciente:</Text>
-        <Text style={styles.valor}>{consulta.pacienteNome}</Text>
+      <View style={styles.secao}>
+        <Text style={styles.label}>👨‍⚕️ Médico</Text>
+        <Text style={styles.valor}>{consulta.medico.nome}</Text>
+        <Text style={styles.info}>CRM: {consulta.medico.crm}</Text>
+        <Text style={styles.info}>{consulta.medico.especialidade.nome}</Text>
       </View>
 
-      <View style={styles.info}>
-        <Text style={styles.label}>Médico:</Text>
-        <Text style={styles.valor}>{consulta.medicoNome}</Text>
+      <View style={styles.secao}>
+        <Text style={styles.label}>👤 Paciente</Text>
+        <Text style={styles.valor}>{consulta.paciente.nome}</Text>
+        <Text style={styles.info}>CPF: {consulta.paciente.cpf}</Text>
+        <Text style={styles.info}>Email: {consulta.paciente.email}</Text>
+        {consulta.paciente.telefone && (
+          <Text style={styles.info}>Tel: {consulta.paciente.telefone}</Text>
+        )}
       </View>
 
-      <View style={styles.info}>
-        <Text style={styles.label}>Especialidade:</Text>
-        <Text style={styles.valor}>{consulta.especialidade}</Text>
+      <View style={styles.secao}>
+        <Text style={styles.label}>📅 Dados da Consulta</Text>
+        <Text style={styles.valor}>Data: {formatarData(consulta.data)}</Text>
+        <Text style={styles.valor}>
+          Valor: {formatarValor(consulta.valor)}
+        </Text>
+        {consulta.observacoes && (
+          <Text style={styles.observacoes}>{consulta.observacoes}</Text>
+        )}
       </View>
 
-      <View style={styles.row}>
-        <View style={[styles.info, { flex: 1 }]}>
-          <Text style={styles.label}>Data:</Text>
-          <Text style={styles.valor}>{formatarData(consulta.data)}</Text>
-        </View>
-        <View style={[styles.info, { flex: 1 }]}>
-          <Text style={styles.label}>Horário:</Text>
-          <Text style={styles.valor}>{formatarHorario(consulta.horario)}</Text>
-        </View>
-      </View>
-
-      {consulta.observacoes && (
-        <View style={styles.info}>
-          <Text style={styles.label}>Observações:</Text>
-          <Text style={styles.valorSecundario}>{consulta.observacoes}</Text>
-        </View>
-      )}
-
-      {/* Botões de Ação */}
       <View style={styles.acoes}>
-        {consulta.status === "agendada" && onConfirmar && (
-          <TouchableOpacity
-            style={[styles.botao, styles.botaoConfirmar]}
-            onPress={() => onConfirmar(consulta.id)}
-          >
-            <Text style={styles.botaoTexto}>Confirmar</Text>
-          </TouchableOpacity>
+        {consulta.status === "agendada" && (
+          <>
+            {onConfirmar && (
+              <View style={styles.botaoContainer}>
+                <Button
+                  title="Confirmar Consulta"
+                  onPress={onConfirmar}
+                  color="#4CAF50"
+                />
+              </View>
+            )}
+            {onCancelar && (
+              <View style={styles.botaoContainer}>
+                <Button
+                  title="Cancelar Consulta"
+                  onPress={onCancelar}
+                  color="#F44336"
+                />
+              </View>
+            )}
+          </>
         )}
 
-        {(consulta.status === "agendada" || consulta.status === "confirmada") &&
-          onCancelar && (
-            <TouchableOpacity
-              style={[styles.botao, styles.botaoCancelar]}
-              onPress={() => onCancelar(consulta.id)}
-            >
-              <Text style={styles.botaoTexto}>Cancelar</Text>
-            </TouchableOpacity>
-          )}
+        {consulta.status === "confirmada" && (
+          <View style={styles.mensagem}>
+            <Text style={styles.mensagemTexto}>
+              ✓ Consulta confirmada com sucesso!
+            </Text>
+          </View>
+        )}
 
-        {onDetalhes && (
-          <TouchableOpacity
-            style={[styles.botao, styles.botaoDetalhes]}
-            onPress={() => onDetalhes(consulta.id)}
-          >
-            <Text style={styles.botaoTextoSecundario}>Ver Detalhes</Text>
-          </TouchableOpacity>
+        {consulta.status === "cancelada" && (
+          <View style={styles.mensagemCancelada}>
+            <Text style={styles.mensagemTexto}>✗ Consulta cancelada</Text>
+          </View>
         )}
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    marginVertical: 8,
-    marginHorizontal: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  statusBadge: {
-    alignSelf: "flex-start",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    marginBottom: 12,
-  },
-  statusTexto: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 12,
-    textTransform: "uppercase",
-  },
-  info: {
-    marginBottom: 8,
-  },
-  row: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  label: {
-    fontSize: 12,
-    color: "#666",
-    marginBottom: 2,
-  },
-  valor: {
-    fontSize: 16,
-    color: "#333",
-    fontWeight: "600",
-  },
-  valorSecundario: {
-    fontSize: 14,
-    color: "#555",
-    fontStyle: "italic",
-  },
-  acoes: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-    marginTop: 12,
-  },
-  botao: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 8,
-    minWidth: 100,
-    alignItems: "center",
-  },
-  botaoConfirmar: {
-    backgroundColor: "#4CAF50",
-  },
-  botaoCancelar: {
-    backgroundColor: "#F44336",
-  },
-  botaoDetalhes: {
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#79059C",
-  },
-  botaoTexto: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 14,
-  },
-  botaoTextoSecundario: {
-    color: "#79059C",
-    fontWeight: "bold",
-    fontSize: 14,
-  },
-});

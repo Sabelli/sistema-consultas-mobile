@@ -1,80 +1,105 @@
-import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
-import { StatusBar } from "expo-status-bar";
-// Componente não utilizado na versão simplificada
+import { useEffect, useState } from "react";
+import { Especialidade } from "../types/especialidade";
+import { Medico } from "../interfaces/medico";
+import { obterConsultas, obterEspecialidades, obterMedicos, obterPacienteLogado, salvarConsultas } from "../services/storage";
+import { Alert } from "react-native";
+import { Consulta } from "../interfaces/consulta";
 
-type AgendamentoProps = {
-  onAgendamentoSuccess: () => void;
-};
+export default function Agendamento({ navigation }: any) {
+    const [especialidades, setEspecialidades] = useState<Especialidade[]>([]);
+    const [medicos, setMedicos] = useState<Medico[]>([]);
+    const [medicosFiltrados, setMedicosFiltrados] = useState<Medico[]>([]);
+    const [especialidadeSelecionada, setEspecialidadeSelecionada] =
+        useState<Especialidade | null>(null);
+    const [medicoSelecionado, setMedicoSelecionado] = useState<Medico | null>(null);
+    const [dataConsulta, setDataConsulta] = useState("");
+    useEffect(() => {
+        carregarDados();
+    }, []);
+    async function carregarDados() {
+        const esps = await obterEspecialidades();
+        const meds = await obterMedicos();
+        setEspecialidades(esps);
+        setMedicos(meds);
+    }
 
-export default function Agendamento({
-  onAgendamentoSuccess,
-}: AgendamentoProps) {
-  return (
-    <View style={styles.container}>
-      <StatusBar style="light" />
-      <View style={styles.header}>
-        <Text style={styles.titulo}>📅 Agendar Consulta</Text>
-      </View>
-      <ScrollView style={styles.content}>
-        <View style={styles.etapa}>
-          <Text style={styles.etapaTitulo}>Componente não utilizado</Text>
-          <View style={styles.card}>
-            <Text style={styles.cardDesc}>
-              Este componente não está ativo na versão simplificada.
-              Use a tela Admin para criar consultas de teste.
-            </Text>
-          </View>
-        </View>
-      </ScrollView>
-    </View>
-  );
+    // Filtra médicos quando uma especialidade é selecionada
+    function selecionarEspecialidade(esp: Especialidade) {
+        setEspecialidadeSelecionada(esp);
+        setMedicoSelecionado(null); // Reseta médico ao mudar especialidade
+        // Filtra médicos da especialidade
+        const medicosEsp = medicos.filter((m) => m.especialidade.id === esp.id);
+        setMedicosFiltrados(medicosEsp);
+    }
+
+    async function agendarConsulta() {
+        // Validações
+        if (!especialidadeSelecionada) {
+            Alert.alert("Atenção", "Selecione uma especialidade");
+            return;
+        }
+        if (!medicoSelecionado) {
+            Alert.alert("Atenção", "Selecione um médico");
+            return;
+        }
+        if (!dataConsulta) {
+            Alert.alert("Atenção", "Informe a data da consulta");
+            return;
+        }
+        // Valida formato da data
+        if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dataConsulta)) {
+            Alert.alert("Erro", "Use o formato DD/MM/AAAA para a data");
+            return;
+        }
+        try {
+            // Busca paciente logado
+            const paciente = await obterPacienteLogado();
+            if (!paciente) {
+                Alert.alert("Erro", "Você precisa estar logado para agendar");
+                navigation.replace("Login");
+                return;
+            }
+            // Converte data
+            const [dia, mes, ano] = dataConsulta.split("/");
+            const data = new Date(Number(ano), Number(mes) - 1, Number(dia));
+            // Valida se a data não é no passado
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            if (data < hoje) {
+                Alert.alert("Erro", "Não é possível agendar consultas no passado");
+                return;
+            }
+            // Cria nova consulta
+            const novaConsulta: Consulta = {
+                id: Date.now(),
+                medico: medicoSelecionado,
+                paciente: paciente,
+                data: data,
+                valor: 350,
+                status: "agendada",
+                observacoes: `Consulta agendada via app`,
+            };
+            // Salva consulta
+            const consultas = await obterConsultas();
+            await salvarConsultas([...consultas, novaConsulta]);
+            Alert.alert(
+                "Sucesso!",
+                `Consulta agendada com ${medicoSelecionado.nome} para ${dataConsulta}`,
+                [
+                    {
+                        text: "Ver minhas consultas",
+                        onPress: () => navigation.navigate("Home"),
+                    },
+                ]
+            );
+            // Limpa formulário
+            setEspecialidadeSelecionada(null);
+            setMedicoSelecionado(null);
+            setDataConsulta("");
+            setMedicosFiltrados([]);
+        } catch (erro) {
+            console.error("Erro ao agendar:", erro);
+            Alert.alert("Erro", "Não foi possível agendar a consulta");
+        }
+    }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f5f5f5",
-  },
-  header: {
-    backgroundColor: "#2196F3",
-    padding: 20,
-    paddingTop: 40,
-  },
-  titulo: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#fff",
-  },
-  content: {
-    flex: 1,
-  },
-  etapa: {
-    padding: 20,
-  },
-  etapaTitulo: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 20,
-  },
-  card: {
-    backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  cardDesc: {
-    fontSize: 14,
-    color: "#666",
-  },
-});
